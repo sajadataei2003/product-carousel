@@ -58,3 +58,32 @@ function wpc_product_carousel( $atts ) {
 }
 add_shortcode( 'product_carousel', 'wpc_product_carousel' );
 
+
+function pc_add_product_carousel( $content ) {
+    if ( is_product() || is_shop() || is_product_category() || is_product_tag() ) {
+        $args = array(
+            'post_type' => 'product',
+            'posts_per_page' => 5,
+        );
+
+        $loop = new WP_Query( $args );
+        ob_start();
+        if ( $loop->have_posts() ) {
+            echo '<div class="product-carousel">';
+            while ( $loop->have_posts() ) {
+                $loop->the_post();
+                wc_get_template_part( 'content', 'product' );
+            }
+            echo '</div>';
+        }
+        wp_reset_postdata();
+
+        $carousel_content = ob_get_clean();
+        $content .= $carousel_content; 
+    }
+
+    return $content;
+}
+add_filter( 'the_content', 'pc_add_product_carousel' );
+
+
